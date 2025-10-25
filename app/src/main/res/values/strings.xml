@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">TimePilot</string>
+    <string name="app_logo">应用Logo</string>
+    <string name="login">登录</string>
+    <string name="register">注册</string>
+    <string name="username">用户名</string>
+    <string name="email">邮箱</string>
+    <string name="password">密码</string>
+    <string name="confirm_password">确认密码</string>
+    <string name="forgot_password">忘记密码？</string>
+    <string name="no_account">还没有账号？</string>
+    <string name="has_account">已有账号？</string>
+    <string name="register_now">立即注册</string>
+    <string name="login_now">立即登录</string>
+    <string name="user_agreement">用户协议</string>
+</resources>

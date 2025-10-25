@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 品牌主色调 -->
+    <color name="brand_primary">#6200EE</color>
+    <color name="brand_primary_dark">#3700B3</color>
+    <color name="brand_primary_light">#BB86FC</color>
+
+    <!-- 辅助色 -->
+    <color name="accent_secondary">#03DAC6</color>
+    <color name="accent_secondary_dark">#018786</color>
+
+    <!-- 背景色 -->
+    <color name="background_light">#FFFFFF</color>
+    <color name="surface_light">#FFFFFF</color>
+    <color name="transparent_white_50">#80FFFFFF</color>
+    <color name="transparent_white_60">#99FFFFFF</color>
+    <color name="transparent_white_70">#B3FFFFFF</color>
+    <color name="transparent_white_80">#CCFFFFFF</color>
+    <color name="transparent_white_90">#E6FFFFFF</color>
+    <!-- 文字色 -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_black">#000000</color>
+
+    <!-- 状态色 -->
+    <color name="status_error">#B00020</color>
+    <color name="status_success">#4CAF50</color>
+    <color name="status_warning">#FF9800</color>
+
+    <!-- 透明度系列 - 白色 -->
+    <color name="transparent_white_0">#00FFFFFF</color>    <!-- 完全透明 -->
+    <color name="transparent_white_10">#1AFFFFFF</color>
+    <color name="transparent_white_20">#33FFFFFF</color>
+    <color name="transparent_white_30">#4DFFFFFF</color>
+    <color name="transparent_white_40">#66FFFFFF</color>
+
+    <color name="transparent_white_100">#FFFFFFFF</color>  <!-- 完全不透明 -->
+
+    <!-- 透明度系列 - 黑色 -->
+    <color name="transparent_black_0">#00000000</color>    <!-- 完全透明 -->
+    <color name="transparent_black_10">#1A000000</color>
+    <color name="transparent_black_20">#33000000</color>
+    <color name="transparent_black_30">#4D000000</color>
+    <color name="transparent_black_40">#66000000</color>
+    <color name="transparent_black_50">#80000000</color>
+    <color name="transparent_black_60">#99000000</color>
+    <color name="transparent_black_70">#B3000000</color>
+    <color name="transparent_black_80">#CC000000</color>
+    <color name="transparent_black_90">#E6000000</color>
+    <color name="transparent_black_100">#FF000000</color>  <!-- 完全不透明 -->
+
+    <!-- 品牌色透明度 -->
+    <color name="transparent_primary_50">#806200EE</color>
+
+    <!-- 语义化别名（向后兼容） -->
+    <color name="primary">@color/brand_primary</color>
+    <color name="primary_dark">@color/brand_primary_dark</color>
+    <color name="primary_light">@color/brand_primary_light</color>
+    <color name="secondary">@color/accent_secondary</color>
+    <color name="secondary_dark">@color/accent_secondary_dark</color>
+    <color name="white">@color/text_white</color>
+    <color name="black">@color/text_black</color>
+    <color name="error">@color/status_error</color>
+    <color name="success">@color/status_success</color>
+    <color name="primary_text">@color/text_primary</color>
+    <color name="secondary_text">@color/text_secondary</color>
+    <color name="hint_text">@color/text_hint</color>
+</resources>
