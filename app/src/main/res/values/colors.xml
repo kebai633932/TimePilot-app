@@ -9,6 +9,15 @@
     <color name="accent_secondary">#03DAC6</color>
     <color name="accent_secondary_dark">#018786</color>
 
+    <!-- 夜间模式兼容色（用于 purple_200 / purple_700 / teal_200） -->
+    <color name="purple_200">#BB86FC</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC6</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="ic_menu_camera_background">#FF0000</color>
+    <color name="ic_menu_gallery_background">#00FF00</color>
+    <color name="ic_menu_slideshow_background">#0000FF</color>
+    <color name="side_nav_bar_background">#F0F0F0</color>
     <!-- 背景色 -->
     <color name="background_light">#FFFFFF</color>
     <color name="surface_light">#FFFFFF</color>
@@ -17,12 +26,18 @@
     <color name="transparent_white_70">#B3FFFFFF</color>
     <color name="transparent_white_80">#CCFFFFFF</color>
     <color name="transparent_white_90">#E6FFFFFF</color>
+
     <!-- 文字色 -->
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
     <color name="text_hint">#9E9E9E</color>
     <color name="text_white">#FFFFFF</color>
     <color name="text_black">#000000</color>
+    <color name="light_blue_primary">#4FC3F7</color>
+    <color name="light_blue_primary_dark">#03A9F4</color>
+    <color name="light_blue_secondary">#81D4FA</color>
+    <color name="light_blue_light">#E1F5FE</color>
+    <color name="white">#FFFFFF</color>
 
     <!-- 状态色 -->
     <color name="status_error">#B00020</color>
@@ -30,16 +45,15 @@
     <color name="status_warning">#FF9800</color>
 
     <!-- 透明度系列 - 白色 -->
-    <color name="transparent_white_0">#00FFFFFF</color>    <!-- 完全透明 -->
+    <color name="transparent_white_0">#00FFFFFF</color>
     <color name="transparent_white_10">#1AFFFFFF</color>
     <color name="transparent_white_20">#33FFFFFF</color>
     <color name="transparent_white_30">#4DFFFFFF</color>
     <color name="transparent_white_40">#66FFFFFF</color>
-
-    <color name="transparent_white_100">#FFFFFFFF</color>  <!-- 完全不透明 -->
+    <color name="transparent_white_100">#FFFFFFFF</color>
 
     <!-- 透明度系列 - 黑色 -->
-    <color name="transparent_black_0">#00000000</color>    <!-- 完全透明 -->
+    <color name="transparent_black_0">#00000000</color>
     <color name="transparent_black_10">#1A000000</color>
     <color name="transparent_black_20">#33000000</color>
     <color name="transparent_black_30">#4D000000</color>
@@ -49,18 +63,17 @@
     <color name="transparent_black_70">#B3000000</color>
     <color name="transparent_black_80">#CC000000</color>
     <color name="transparent_black_90">#E6000000</color>
-    <color name="transparent_black_100">#FF000000</color>  <!-- 完全不透明 -->
+    <color name="transparent_black_100">#FF000000</color>
 
     <!-- 品牌色透明度 -->
     <color name="transparent_primary_50">#806200EE</color>
 
-    <!-- 语义化别名（向后兼容） -->
+    <!-- 语义化别名 -->
     <color name="primary">@color/brand_primary</color>
     <color name="primary_dark">@color/brand_primary_dark</color>
     <color name="primary_light">@color/brand_primary_light</color>
     <color name="secondary">@color/accent_secondary</color>
     <color name="secondary_dark">@color/accent_secondary_dark</color>
-    <color name="white">@color/text_white</color>
     <color name="black">@color/text_black</color>
     <color name="error">@color/status_error</color>
     <color name="success">@color/status_success</color>

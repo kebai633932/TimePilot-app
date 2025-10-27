@@ -13,4 +13,8 @@
     <string name="register_now">立即注册</string>
     <string name="login_now">立即登录</string>
     <string name="user_agreement">用户协议</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="action_settings">Settings</string>
 </resources>

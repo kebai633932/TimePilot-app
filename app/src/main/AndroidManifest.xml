@@ -1,25 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
+          package="com.example.timepilot_app">
 
     <application
             android:allowBackup="true"
             android:label="@string/app_name"
             android:supportsRtl="true"
-            android:theme="@style/Theme.TimePilotapp"
-            tools:replace="android:theme">  <!-- 添加 tools:replace 如果主题冲突 -->
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">  <!-- 使用系统主题 -->
 
+        <!-- 启动页 -->
         <activity
                 android:name=".MainActivity"
                 android:exported="true"
                 android:label="@string/app_name"
-                android:theme="@style/Theme.TimePilotapp.NoActionBar">
-
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar">  <!-- 使用系统主题 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- 其他页面 -->
+        <activity
+                android:name=".LoginActivity"
+                android:exported="true"
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
+                android:name=".RegisterActivity"
+                android:exported="true"
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+    </application>
 </manifest>
