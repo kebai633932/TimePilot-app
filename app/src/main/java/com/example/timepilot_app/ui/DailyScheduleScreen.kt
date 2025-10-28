@@ -64,7 +64,7 @@ fun ScheduleBoardScreen() {
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(onClick = { showAddDialog = true }) { Text("添加事件") }
-                    Button(onClick = { /* TODO: AI规划 */ }) { Text("AI规划") }
+                    Button(onClick = { /* TODO: AI规划 */ }) { Text("自动规划") }
                 }
 
                 Divider(color = Color(0xFFBDBDBD), thickness = 1.dp)
