@@ -1,4 +1,4 @@
-package com.example.timepilot_app.ui
+package com.example.timepilot_app.ui.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

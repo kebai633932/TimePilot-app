@@ -1,6 +1,6 @@
 package com.example.timepilot_app.data.remote
 
-import com.example.timepilot_app.data.model.ScheduleEvent
+import com.example.timepilot_app.ui.schedule.ScheduleEvent
 import retrofit2.http.*
 
 interface ScheduleApi {

@@ -1,10 +1,9 @@
-package com.example.timepilot_app.ui
+package com.example.timepilot_app.ui.schedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -107,6 +106,14 @@ fun ScheduleBoardScreen() {
                         )
                     ) {
                         Text("事件查看", color = Color.White)
+                    }
+                    Button(
+                        onClick = { currentView = "daily" },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentView == "daily") Color(0xFF2196F3) else Color.Gray
+                        )
+                    ) {
+                        Text("个人界面", color = Color.White)
                     }
                 }
             }
