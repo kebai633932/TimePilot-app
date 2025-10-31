@@ -26,14 +26,15 @@ import com.example.timepilot_app.R   // ✅ 导入你项目的资源R文件
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit,
-    onRegisterClick: () -> Unit,
-    onForgotPasswordClick: () -> Unit
+    onLoginSuccess: (String, String) -> Unit = { _, _ -> },
+    onRegisterClick: () -> Unit = {},
+    onForgotPasswordClick: () -> Unit = {}
 ) {
+    val viewModel = remember { com.example.timepilot_app.viewmodel.LoginViewModel() }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var loginMessage by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -138,29 +139,36 @@ fun LoginScreen(
                     shape = RoundedCornerShape(12.dp),
                     label = { Text("密码") }
                 )
-
-                // 忘记密码
-                Text(
-                    text = "忘记密码？",
-                    color = Color(0xFF1976D2),
-                    fontSize = 14.sp,
-                    modifier = Modifier
-                        .clickable { onForgotPasswordClick() }
-                        .padding(top = 12.dp)
-                        .align(Alignment.End)
-                )
+//todo 没做这方面的接口
+//                // 忘记密码
+//                Text(
+//                    text = "忘记密码？",
+//                    color = Color(0xFF1976D2),
+//                    fontSize = 14.sp,
+//                    modifier = Modifier
+//                        .clickable { onForgotPasswordClick() }
+//                        .padding(top = 12.dp)
+//                        .align(Alignment.End)
+//                )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // 登录按钮
                 Button(
-                    onClick = { onLoginClick(username, password) },
+                    onClick = {
+                        viewModel.login(username, password) { success, message ->
+                            loginMessage = message
+                            println(message)
+                            if (success) {
+                                // 登录成功跳转
+                                onLoginSuccess(username, password) // AppNavHost 中的 lambda 会导航到 home
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1976D2)
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
@@ -168,6 +176,13 @@ fun LoginScreen(
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
+                    )
+                }
+                if (loginMessage.isNotEmpty()) {
+                    Text(
+                        text = loginMessage,
+                        color = if (loginMessage.contains("成功")) Color(0xFF388E3C) else Color(0xFFD32F2F),
+                        modifier = Modifier.padding(top = 16.dp)
                     )
                 }
 
@@ -191,7 +206,7 @@ fun LoginScreen(
                         color = Color(0xFF1976D2),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { onRegisterClick() }
+                        modifier = Modifier.clickable { onRegisterClick() } // ✅ 调用 Lambda
                     )
                 }
             }
@@ -208,7 +223,7 @@ fun LoginScreenPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             LoginScreen(
-                onLoginClick = { username, password ->
+                onLoginSuccess = { username, password ->
                     println("登录: $username, $password")
                 },
                 onRegisterClick = {
