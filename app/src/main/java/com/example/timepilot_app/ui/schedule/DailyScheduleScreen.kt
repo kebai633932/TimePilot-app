@@ -1,5 +1,4 @@
 package com.example.timepilot_app.ui.schedule
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -271,22 +270,19 @@ fun ScrollableEventSchedule(events: List<ScheduleEvent>) {
                             val xOffset = (columnWidth * node.column).coerceAtMost(maxX)
 
                             if (height > 0.dp) {
-                                Box(
+                                val color = if (node.event.type == "emergency") Color(0xFFFF8A80) else Color(0xFF90CAF9)
+                                EventCard(
                                     modifier = Modifier
                                         .offset(x = xOffset, y = top)
                                         .requiredWidth(width)
-                                        .height(height)
-                                ) {
-                                    val color = if (node.event.type == "emergency") Color(0xFFFF8A80) else Color(0xFF90CAF9)
-                                EventCard(
-                                        title = node.event.title,
-                                        color = color,
-                                        timeRange = String.format(
-                                            "%02d:%02d-%02d:%02d",
-                                            node.event.startHour, node.event.startMinute, node.event.endHour, node.event.endMinute
-                                        )
+                                        .height(height),
+                                    title = node.event.title,
+                                    color = color,
+                                    timeRange = String.format(
+                                        "%02d:%02d-%02d:%02d",
+                                        node.event.startHour, node.event.startMinute, node.event.endHour, node.event.endMinute
                                     )
-                                }
+                                )
                             }
                         }
                     }
@@ -411,68 +407,37 @@ fun AddEventDialog(onDismiss: () -> Unit, onAdd: (ScheduleEvent) -> Unit) {
 }
 
 @Composable
-fun EventCard(title: String, color: Color, timeRange: String) {
+fun EventCard(modifier: Modifier = Modifier, title: String, color: Color, timeRange: String) {
     BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
+            .shadow(3.dp, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
             .background(color)
-            .shadow(4.dp, RoundedCornerShape(10.dp))
-            .border(1.dp, Color(0x33000000), RoundedCornerShape(10.dp))
             .padding(6.dp),
         contentAlignment = Alignment.Center
     ) {
-        val h = maxHeight
-        val w = maxWidth
-
-        // 自适应排版规则：
-        // - 极小：仅显示时间（高度<28dp 或 宽度<80dp）
-        // - 中等：显示标题(最多1-2行) + 时间
-        // - 足够：显示标题(2行) + 时间
-        val isTiny = h < 28.dp || w < 80.dp
-        val isCompact = h < 44.dp || w < 120.dp
-
-        val titleFont = when {
-            isTiny -> 11.sp
-            isCompact -> 13.sp
-            else -> 14.sp
-        }
-        val timeFont = when {
-            isTiny -> 10.sp
-            isCompact -> 11.sp
-            else -> 12.sp
-        }
-        val titleMaxLines = when {
-            isTiny -> 1
-            isCompact -> 1
-            else -> 2
-        }
+        val isCompact = maxHeight < 44.dp || maxWidth < 120.dp
 
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (!isTiny) {
             Text(
                 text = title,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                    fontSize = titleFont,
-                    maxLines = titleMaxLines,
-                    overflow = TextOverflow.Ellipsis
-            )
-            }
-            Text(
-                text = if (isTiny) title else timeRange,
-                color = Color(0xFFF5F5F5),
-                fontSize = timeFont,
-                maxLines = if (isTiny) 1 else 1,
+                fontSize = if (isCompact) 13.sp else 14.sp,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = timeRange,
+                color = Color(0xFFF5F5F5),
+                fontSize = if (isCompact) 11.sp else 12.sp
             )
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun ScheduleBoardPreview() {
