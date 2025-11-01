@@ -1,7 +1,7 @@
 package com.example.timepilot_app.util
 
 import android.content.Context
-import java.util.UUID
+import java.util.*
 
 object DeviceIdManager {
     private const val PREFS_NAME = "app_prefs"

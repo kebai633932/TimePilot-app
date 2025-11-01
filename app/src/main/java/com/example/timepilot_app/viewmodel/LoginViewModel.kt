@@ -1,7 +1,6 @@
 package com.example.timepilot_app.viewmodel
 
 import android.util.Log
-import android.util.Log.e
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.timepilot_app.model.LoginRequest
