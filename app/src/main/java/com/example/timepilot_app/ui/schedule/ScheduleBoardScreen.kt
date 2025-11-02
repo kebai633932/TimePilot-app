@@ -29,6 +29,7 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
     // Snackbar host 用于显示错误提示
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
     // 首次加载事件
     LaunchedEffect(Unit) {
         viewModel.loadEvents()
@@ -43,7 +44,70 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = {
+            NavigationBar(
+                containerColor = Color(0xFFF3F4F6),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                NavigationBarItem(
+                    icon = {
+                        Text("当日", color = if (currentView == "today") Color.White else Color.Gray)
+                    },
+                    label = { Text("当日计划") },
+                    selected = currentView == "today",
+                    onClick = {
+                        currentView = "today"
+//                        println("DEBUG: 切换到今日视图")
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        selectedTextColor = Color.White,
+                        indicatorColor = Color(0xFF2196F3),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+
+                NavigationBarItem(
+                    icon = {
+                        Text("列表", color = if (currentView == "list") Color.White else Color.Gray)
+                    },
+                    label = { Text("事件列表") },
+                    selected = currentView == "list",
+                    onClick = {
+                        currentView = "list"
+//                        println("DEBUG: 切换到列表视图")
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        selectedTextColor = Color.White,
+                        indicatorColor = Color(0xFF2196F3),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+
+                NavigationBarItem(
+                    icon = {
+                        Text("个人", color = if (currentView == "profile") Color.White else Color.Gray)
+                    },
+                    label = { Text("个人界面") },
+                    selected = currentView == "profile",
+                    onClick = {
+                        currentView = "profile"
+//                        println("DEBUG: 切换到个人视图")
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        selectedTextColor = Color.White,
+                        indicatorColor = Color(0xFF2196F3),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+            }
+        }
     ) { paddingValues ->
         Surface(
             modifier = Modifier
@@ -59,7 +123,6 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                         onDismiss = { showAddDialog = false },
                         onAdd = { scheduleEvent: ScheduleEvent ->
 
-                            // 假设使用今天的日期，如果有选择日期可以替换 LocalDate.now()
                             val today = java.time.LocalDate.now()
 
                             val plannedStartTime = today
@@ -83,7 +146,6 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                                     showAddDialog = false
                                 } else {
                                     errorMsg?.let {
-                                        // 可以弹 Snackbar 或日志
                                         println("错误: $it")
                                     }
                                 }
@@ -92,9 +154,8 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                     )
                 }
 
-
                 // ======= 主界面内容 =======
-                Column(modifier = Modifier.fillMaxSize().padding(bottom = 72.dp)) {
+                Column(modifier = Modifier.fillMaxSize()) {
 
                     // 顶部按钮栏
                     Row(
@@ -117,7 +178,6 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                                         println("✅ 智能规划成功，生成事件数：${plannedEvents?.size ?: 0}")
                                         plannedEvents?.let { viewModel.updateEvents(it) }
 
-                                        // ✅ 通过 coroutineScope.launch 显示 Snackbar
                                         coroutineScope.launch {
                                             snackbarHostState.showSnackbar("智能规划成功！")
                                         }
@@ -132,108 +192,105 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                         }) {
                             Text("自动规划")
                         }
-
                     }
 
                     Divider(color = Color(0xFFBDBDBD), thickness = 1.dp)
 
-                    // 主体内容
+                    // ✅ 修复：重构条件逻辑，确保 ProfileScreen 能正确显示
                     Box(modifier = Modifier.weight(1f)) {
-                        when {
-                            isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                            events.isEmpty() -> Text(
-                                text = "暂无事件",
-                                color = Color.Gray,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                            else -> when (currentView) {
-                                "today" -> ScrollableEventSchedule(
-                                    events = events.map { it.toScheduleEvent() },
-                                    onEditEvent = { scheduleEvent ->
-                                        // 找到对应的 EventItem
-                                        val eventItem = events.find { it.toScheduleEvent() == scheduleEvent }
-                                        eventItem?.let { item ->
-                                            // 构造更新请求（根据事件类型选择不同 DTO）
-                                            val updateRequest = when (item.type) {
-                                                "adHoc" -> AdHocEventUpdateRequest(
-                                                    eventId = item.eventId!!,
-                                                    title = scheduleEvent.title,
-                                                    quadrant = scheduleEvent.quadrant,
-                                                    plannedStartTime = item.startTime, // 或者你从 scheduleEvent 重新计算 Instant
-                                                    plannedEndTime = item.endTime
-                                                )
-                                                "habitual" -> HabitualEventUpdateRequest(
-                                                    eventId = item.eventId!!,
-                                                    title = scheduleEvent.title,
-                                                    quadrant = scheduleEvent.quadrant,
-                                                    startTime = item.startTime,
-                                                    endTime = item.endTime
-                                                )
-                                                else -> null
-                                            }
+                        // 调试信息
+                        Text(
+                            text = "当前视图: $currentView, 事件数量: ${events.size}",
+                            color = Color.Red,
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
 
-                                            updateRequest?.let { req ->
-                                                // 调用 viewModel.editEvent，并处理结果
-                                                viewModel.editEvent(req) { success, message ->
-                                                    if (!success) {
-                                                        println("编辑失败: $message") // 可以换成 Snackbar
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    ,
-                                    onDeleteEvent = { scheduleEvent ->
-                                        // 找到对应的 EventItem
-                                        val eventItem = events.find { it.toScheduleEvent() == scheduleEvent }
-                                        eventItem?.let { item ->
-                                            // 构造删除请求
-                                            val deleteRequest = when (item.type) {
-                                                "adHoc" -> AdHocEventDeleteRequest(eventId = item.eventId!!)
-                                                "habitual" -> HabitualEventDeleteRequest(eventId = item.eventId!!)
-                                                else -> null
-                                            }
-                                            deleteRequest?.let { req ->
-                                                viewModel.deleteEvent(req) { success, message ->
-                                                    if (!success) {
-                                                        // 可以用 Snackbar 或日志提示
-                                                        println("删除失败: $message")
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                        when {
+                            isLoading -> {
+                                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                            }
+                            currentView == "profile" -> {
+                                // ✅ 关键修复：当切换到个人界面时，直接显示 ProfileScreen，不检查事件列表
+                                ProfileScreen()
+                            }
+                            events.isEmpty() -> {
+                                Text(
+                                    text = "暂无事件",
+                                    color = Color.Gray,
+                                    modifier = Modifier.align(Alignment.Center)
                                 )
-                                "list" -> EventListTitles(events = events.map { it.toScheduleEvent() })
-                                "profile" -> ProfileScreen()
+                            }
+                            else -> {
+                                when (currentView) {
+                                    "today" -> ScrollableEventSchedule(
+                                        events = events.map { it.toScheduleEvent() },
+                                        onEditEvent = { scheduleEvent ->
+                                            val eventItem = events.find { it.toScheduleEvent() == scheduleEvent }
+                                            eventItem?.let { item ->
+                                                val updateRequest = when (item.type) {
+                                                    "adHoc" -> AdHocEventUpdateRequest(
+                                                        eventId = item.eventId!!,
+                                                        title = scheduleEvent.title,
+                                                        quadrant = scheduleEvent.quadrant,
+                                                        plannedStartTime = item.startTime,
+                                                        plannedEndTime = item.endTime
+                                                    )
+                                                    "habitual" -> HabitualEventUpdateRequest(
+                                                        eventId = item.eventId!!,
+                                                        title = scheduleEvent.title,
+                                                        quadrant = scheduleEvent.quadrant,
+                                                        startTime = item.startTime,
+                                                        endTime = item.endTime
+                                                    )
+                                                    else -> null
+                                                }
+
+                                                updateRequest?.let { req ->
+                                                    viewModel.editEvent(req) { success, message ->
+                                                        if (!success) {
+                                                            println("编辑失败: $message")
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        onDeleteEvent = { scheduleEvent ->
+                                            val eventItem = events.find { it.toScheduleEvent() == scheduleEvent }
+                                            eventItem?.let { item ->
+                                                val deleteRequest = when (item.type) {
+                                                    "adHoc" -> AdHocEventDeleteRequest(eventId = item.eventId!!)
+                                                    "habitual" -> HabitualEventDeleteRequest(eventId = item.eventId!!)
+                                                    else -> null
+                                                }
+                                                deleteRequest?.let { req ->
+                                                    viewModel.deleteEvent(req) { success, message ->
+                                                        if (!success) {
+                                                            println("删除失败: $message")
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    )
+                                    "list" -> EventListTitles(events = events.map { it.toScheduleEvent() })
+                                    else -> {
+                                        // 默认情况
+                                        Text(
+                                            text = "未知视图",
+                                            color = Color.Gray,
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-
-                // ======= 底部导航栏 =======
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                ) {
-                    Divider(thickness = 1.dp, color = Color(0xFFE0E0E0))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF3F4F6))
-                            .padding(12.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        NavButton("today", currentView) { currentView = "today" }
-                        NavButton("list", currentView) { currentView = "list" }
-                        NavButton("profile", currentView) { currentView = "profile" }
                     }
                 }
             }
         }
     }
 }
+
 // ===================== 扩展函数：将 EventItem 转换为 ScheduleEvent =====================
 fun EventItem.toScheduleEvent(): ScheduleEvent {
     val startZdt: ZonedDateTime = this.startTime.atZone(ZoneId.systemDefault())
@@ -247,24 +304,6 @@ fun EventItem.toScheduleEvent(): ScheduleEvent {
         quadrant = this.quadrant,
         type = this.type
     )
-}
-
-@Composable
-private fun NavButton(label: String, currentView: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (currentView == label) Color(0xFF2196F3) else Color.Gray
-        )
-    ) {
-        val text = when (label) {
-            "today" -> "当日计划"
-            "list" -> "事件列表"
-            "profile" -> "个人界面"
-            else -> label
-        }
-        Text(text, color = Color.White)
-    }
 }
 
 @Preview(showBackground = true)
