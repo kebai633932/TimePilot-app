@@ -17,7 +17,16 @@ data class EventItem(
     val endTime: Instant,   // 结束时间（UTC）
     val type: String        // "habitual" 或 "adHoc"
 )
-
+// 🕒 客户端展示模型 (ScheduleEvent)
+data class ScheduleEvent(
+    val title: String,
+    val startHour: Int,
+    val startMinute: Int,
+    val endHour: Int,
+    val endMinute: Int,
+    val type: String,    // "daily" or "emergency"
+    val quadrant: Int    // 1=重要紧急, 2=重要不紧急, 3=紧急不重要, 4=不重要不紧急
+)
 interface EventCreateRequest {
     val type: String
 }
@@ -39,7 +48,18 @@ data class HabitualEventCreateRequest(
 ) : EventCreateRequest {
     override val type: String = "habitual"
 }
-
+interface EventUpdateRequest {
+    val type: String
+}
+data class AdHocEventUpdateRequest(
+    val eventId: Long,
+    val title: String,
+    val quadrant: Int,
+    val plannedStartTime: Instant,
+    val plannedEndTime: Instant
+) : EventUpdateRequest {
+    override val type: String = "adHoc"
+}
 data class HabitualEventUpdateRequest(
     val eventId: Long,
     val title: String,
@@ -47,11 +67,28 @@ data class HabitualEventUpdateRequest(
     val quadrant: Int,
     val plannedStartTime: Instant,
     val plannedEndTime: Instant
-)
+) : EventUpdateRequest {
+    override val type: String = "habitual"
+}
+// 统一删除请求接口
+interface EventDeleteRequest {
+    val type: String
+    val eventId: Long   // ← 提升到接口
+}
 
+// 日常事件删除请求
 data class HabitualEventDeleteRequest(
-    val eventId: Long
-)
+    override val eventId: Long
+) : EventDeleteRequest {
+    override val type: String = "habitual"
+}
+
+// 突发事件删除请求
+data class AdHocEventDeleteRequest(
+    override val eventId: Long
+) : EventDeleteRequest {
+    override val type: String = "adHoc"
+}
 
 data class HabitualEventVO(
     val eventId: Long,
@@ -63,19 +100,6 @@ data class HabitualEventVO(
     val type: String
 )
 
-data class AdHocEventUpdateRequest(
-    val eventId: Long,
-    val title: String,
-    val quadrant: Int,
-    val plannedStartTime: Instant,
-    val plannedEndTime: Instant,
-    val type: String = "habitual"
-)
-
-data class AdHocEventDeleteRequest(
-    val eventId: Long
-)
-
 data class AdHocEventVO(
     val eventId: Long,
     val title: String,
@@ -83,16 +107,4 @@ data class AdHocEventVO(
     val plannedStartTime: Instant,
     val plannedEndTime: Instant,
     val type: String
-)
-
-// 🕒 客户端展示模型 (ScheduleEvent)
-
-data class ScheduleEvent(
-    val title: String,
-    val startHour: Int,
-    val startMinute: Int,
-    val endHour: Int,
-    val endMinute: Int,
-    val type: String,    // "daily" or "emergency"
-    val quadrant: Int    // 1=重要紧急, 2=重要不紧急, 3=紧急不重要, 4=不重要不紧急
 )

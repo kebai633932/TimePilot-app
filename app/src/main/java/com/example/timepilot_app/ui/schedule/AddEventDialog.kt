@@ -159,7 +159,7 @@ private fun AddEventDialogPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ExposedDropdown(
+fun ExposedDropdown(
     label: String,
     display: String,
     expanded: Boolean,

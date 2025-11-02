@@ -1,13 +1,17 @@
-// ScheduleViewModel.kt
 package com.example.timepilot_app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.timepilot_app.model.AdHocEventCreateRequest
-import com.example.timepilot_app.model.AdHocEventVO
+import com.example.timepilot_app.model.AdHocEventDeleteRequest
+import com.example.timepilot_app.model.AdHocEventUpdateRequest
 import com.example.timepilot_app.model.EventCreateRequest
+import com.example.timepilot_app.model.EventDeleteRequest
 import com.example.timepilot_app.model.EventItem
+import com.example.timepilot_app.model.EventUpdateRequest
 import com.example.timepilot_app.model.HabitualEventCreateRequest
+import com.example.timepilot_app.model.HabitualEventDeleteRequest
+import com.example.timepilot_app.model.HabitualEventUpdateRequest
 import com.example.timepilot_app.network.ApiClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +19,7 @@ import kotlinx.coroutines.launch
 
 class ScheduleViewModel : ViewModel() {
 
+    // ========== 事件状态 ==========
     private val _events = MutableStateFlow<List<EventItem>>(emptyList())
     val events: StateFlow<List<EventItem>> = _events
 
@@ -24,12 +29,20 @@ class ScheduleViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    /** 加载全部事件（含日常 + 突发） */
+    // ========== 弹窗状态 ==========
+    private val _selectedEvent = MutableStateFlow<EventItem?>(null)
+    val selectedEvent: StateFlow<EventItem?> = _selectedEvent
+
+    private val _isDialogVisible = MutableStateFlow(false)
+    val isDialogVisible: StateFlow<Boolean> = _isDialogVisible
+
+    // ========================================================
+    // 加载事件
+    // ========================================================
     fun loadEvents() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // 并行请求两种类型的事件
                 val adHocResponse = ApiClient.apiService.listAdHocEvents()
                 val habitualResponse = ApiClient.apiService.listHabitualEvents()
 
@@ -56,7 +69,6 @@ class ScheduleViewModel : ViewModel() {
                         )
                     } ?: emptyList()
 
-                    // 合并两类事件
                     _events.value = adHocEvents + habitualEvents
                 } else {
                     _errorMessage.value =
@@ -69,9 +81,11 @@ class ScheduleViewModel : ViewModel() {
         }
     }
 
-    /** 新增事件，区分类型 */
+    // ========================================================
+    // 新增事件
+    // ========================================================
     fun addEvent(
-        request: EventCreateRequest, // 可以传 AdHocEventCreateRequest 或 HabitualEventCreateRequest
+        request: EventCreateRequest,
         onComplete: (Boolean, String?) -> Unit
     ) {
         viewModelScope.launch {
@@ -82,7 +96,7 @@ class ScheduleViewModel : ViewModel() {
                         val response = ApiClient.apiService.createAdHocEvent(req)
                         if (response.code == 200) {
                             val newId = response.data!!
-                            _events.value = _events.value + EventItem(
+                            _events.value += EventItem(
                                 eventId = newId,
                                 title = req.title,
                                 quadrant = req.quadrant,
@@ -91,16 +105,15 @@ class ScheduleViewModel : ViewModel() {
                                 type = "adHoc"
                             )
                             onComplete(true, null)
-                        } else {
-                            onComplete(false, response.message)
-                        }
+                        } else onComplete(false, response.message)
                     }
+
                     "habitual" -> {
                         val req = request as HabitualEventCreateRequest
                         val response = ApiClient.apiService.createHabitualEvent(req)
                         if (response.code == 200) {
                             val newId = response.data!!
-                            _events.value = _events.value + EventItem(
+                            _events.value += EventItem(
                                 eventId = newId,
                                 title = req.title,
                                 quadrant = req.quadrant,
@@ -109,15 +122,113 @@ class ScheduleViewModel : ViewModel() {
                                 type = "habitual"
                             )
                             onComplete(true, null)
-                        } else {
-                            onComplete(false, response.message)
-                        }
+                        } else onComplete(false, response.message)
                     }
                 }
             } catch (e: Exception) {
                 onComplete(false, e.message ?: "网络异常")
             }
         }
+    }
+
+    // ========================================================
+    // 编辑事件
+    // ========================================================
+    fun editEvent(
+        request: EventUpdateRequest,
+        onComplete: (Boolean, String?) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                when (request.type) {
+                    "adHoc" -> {
+                        val req = request as AdHocEventUpdateRequest
+                        val response = ApiClient.apiService.updateAdHocEvent(req)
+                        if (response.code == 200) {
+                            _events.value = _events.value.map {
+                                if (it.eventId == req.eventId && it.type == "adHoc") {
+                                    it.copy(
+                                        title = req.title,
+                                        quadrant = req.quadrant,
+                                        startTime = req.plannedStartTime,
+                                        endTime = req.plannedEndTime
+                                    )
+                                } else it
+                            }
+                            onComplete(true, null)
+                        } else onComplete(false, response.message)
+                    }
+
+                    "habitual" -> {
+                        val req = request as HabitualEventUpdateRequest
+                        val response = ApiClient.apiService.updateHabitualEvent(req)
+                        if (response.code == 200) {
+                            _events.value = _events.value.map {
+                                if (it.eventId == req.eventId && it.type == "habitual") {
+                                    it.copy(
+                                        title = req.title,
+                                        quadrant = req.quadrant,
+                                        startTime = req.plannedStartTime,
+                                        endTime = req.plannedEndTime
+                                    )
+                                } else it
+                            }
+                            onComplete(true, null)
+                        } else onComplete(false, response.message)
+                    }
+                }
+            } catch (e: Exception) {
+                onComplete(false, e.message ?: "网络异常")
+            }
+        }
+    }
+
+    // ========================================================
+    // 删除事件
+    // ========================================================
+    fun deleteEvent(
+        request: EventDeleteRequest,
+        onComplete: (Boolean, String?) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = when (request) {
+                    is AdHocEventDeleteRequest -> ApiClient.apiService.deleteAdHocEvent(request)
+                    is HabitualEventDeleteRequest -> ApiClient.apiService.deleteHabitualEvent(request)
+                    else -> null
+                }
+
+                if (response == null) {
+                    onComplete(false, "未知事件类型")
+                    return@launch
+                }
+
+                if (response.code == 200 && response.data == true) {
+                    // 删除本地缓存的事件
+                    _events.value = _events.value.filterNot {
+                        it.eventId == request.eventId && it.type == request.type
+                    }
+                    onComplete(true, null)
+                } else {
+                    onComplete(false, response.message ?: "删除失败")
+                }
+            } catch (e: Exception) {
+                onComplete(false, e.message ?: "网络异常")
+            }
+        }
+    }
+
+    // ========================================================
+    // 弹窗控制
+    // ========================================================
+    fun onEventClick(event: EventItem) {
+        _selectedEvent.value = event
+        _isDialogVisible.value = true
+    }
+
+    fun closeDialog() {
+        _isDialogVisible.value = false
+        _selectedEvent.value = null
     }
 
     fun clearError() {

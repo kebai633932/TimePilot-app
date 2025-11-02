@@ -8,7 +8,6 @@ plugins {
 android {
     namespace = "com.example.timepilot_app"
     compileSdk = 34
-
     defaultConfig {
         applicationId = "com.example.timepilot_app"
         minSdk = 24
@@ -16,6 +15,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -32,8 +32,10 @@ android {
     }
 
     compileOptions {
+        // ✅ 启用 desugaring（关键）
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -46,7 +48,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10" // 与 Kotlin 1.9.22 兼容
+        kotlinCompilerExtensionVersion = "1.5.10" // Kotlin 1.9.22 对应版本
     }
 
     packaging {
@@ -57,6 +59,9 @@ android {
 }
 
 dependencies {
+    // ✅ 反糖支持库：让 minSdk=24 也能用 Instant、LocalDateTime 等
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
+
     // 核心 Android
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -64,6 +69,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
     // 生命周期
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")

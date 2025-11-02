@@ -11,7 +11,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.timepilot_app.model.AdHocEventCreateRequest
+import com.example.timepilot_app.model.AdHocEventDeleteRequest
+import com.example.timepilot_app.model.AdHocEventUpdateRequest
 import com.example.timepilot_app.model.EventItem
+import com.example.timepilot_app.model.HabitualEventDeleteRequest
+import com.example.timepilot_app.model.HabitualEventUpdateRequest
 import com.example.timepilot_app.model.ScheduleEvent
 import com.example.timepilot_app.viewmodel.ScheduleViewModel
 import java.time.ZoneId
@@ -26,6 +30,9 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
     val events by viewModel.events.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+
+    var selectedEvent by remember { mutableStateOf<EventItem?>(null) }
+    var showOptionsDialog by remember { mutableStateOf(false) }
 
     // Snackbar host 用于显示错误提示
     val snackbarHostState = remember { SnackbarHostState() }
@@ -121,7 +128,63 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                                 modifier = Modifier.align(Alignment.Center)
                             )
                             else -> when (currentView) {
-                                "today" -> ScrollableEventSchedule(events = events.map { it.toScheduleEvent() })
+                                "today" -> ScrollableEventSchedule(
+                                    events = events.map { it.toScheduleEvent() },
+                                    onEditEvent = { scheduleEvent ->
+                                        // 找到对应的 EventItem
+                                        val eventItem = events.find { it.toScheduleEvent() == scheduleEvent }
+                                        eventItem?.let { item ->
+                                            // 构造更新请求（根据事件类型选择不同 DTO）
+                                            val updateRequest = when (item.type) {
+                                                "adHoc" -> AdHocEventUpdateRequest(
+                                                    eventId = item.eventId!!,
+                                                    title = scheduleEvent.title,
+                                                    quadrant = scheduleEvent.quadrant,
+                                                    plannedStartTime = item.startTime, // 或者你从 scheduleEvent 重新计算 Instant
+                                                    plannedEndTime = item.endTime
+                                                )
+                                                "habitual" -> HabitualEventUpdateRequest(
+                                                    eventId = item.eventId!!,
+                                                    title = scheduleEvent.title,
+                                                    quadrant = scheduleEvent.quadrant,
+                                                    plannedStartTime = item.startTime,
+                                                    plannedEndTime = item.endTime
+                                                )
+                                                else -> null
+                                            }
+
+                                            updateRequest?.let { req ->
+                                                // 调用 viewModel.editEvent，并处理结果
+                                                viewModel.editEvent(req) { success, message ->
+                                                    if (!success) {
+                                                        println("编辑失败: $message") // 可以换成 Snackbar
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ,
+                                    onDeleteEvent = { scheduleEvent ->
+                                        // 找到对应的 EventItem
+                                        val eventItem = events.find { it.toScheduleEvent() == scheduleEvent }
+                                        eventItem?.let { item ->
+                                            // 构造删除请求
+                                            val deleteRequest = when (item.type) {
+                                                "adHoc" -> AdHocEventDeleteRequest(eventId = item.eventId!!)
+                                                "habitual" -> HabitualEventDeleteRequest(eventId = item.eventId!!)
+                                                else -> null
+                                            }
+                                            deleteRequest?.let { req ->
+                                                viewModel.deleteEvent(req) { success, message ->
+                                                    if (!success) {
+                                                        // 可以用 Snackbar 或日志提示
+                                                        println("删除失败: $message")
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                )
                                 "list" -> EventListTitles(events = events.map { it.toScheduleEvent() })
                                 "profile" -> ProfileScreen()
                             }
