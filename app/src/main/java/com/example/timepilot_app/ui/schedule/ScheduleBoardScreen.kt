@@ -10,14 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.timepilot_app.model.AdHocEventCreateRequest
-import com.example.timepilot_app.model.AdHocEventDeleteRequest
-import com.example.timepilot_app.model.AdHocEventUpdateRequest
-import com.example.timepilot_app.model.EventItem
-import com.example.timepilot_app.model.HabitualEventDeleteRequest
-import com.example.timepilot_app.model.HabitualEventUpdateRequest
-import com.example.timepilot_app.model.ScheduleEvent
+import com.example.timepilot_app.model.*
 import com.example.timepilot_app.viewmodel.ScheduleViewModel
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -36,7 +31,7 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
 
     // Snackbar host 用于显示错误提示
     val snackbarHostState = remember { SnackbarHostState() }
-
+    val coroutineScope = rememberCoroutineScope()
     // 首次加载事件
     LaunchedEffect(Unit) {
         viewModel.loadEvents()
@@ -113,7 +108,35 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(onClick = { showAddDialog = true }) { Text("添加事件") }
-                        Button(onClick = { /* TODO: AI规划 */ }) { Text("自动规划") }
+                        Button(onClick = {
+                            val today = java.time.LocalDate.now()
+                                .atStartOfDay(ZoneId.systemDefault())
+                                .toInstant()
+
+                            viewModel.generateSmartDailyPlan(
+                                date = today,
+                                strategy = "default",
+                                onComplete = { success, message, plannedEvents ->
+                                    if (success) {
+                                        println("✅ 智能规划成功，生成事件数：${plannedEvents?.size ?: 0}")
+                                        plannedEvents?.let { viewModel.updateEvents(it) }
+
+                                        // ✅ 通过 coroutineScope.launch 显示 Snackbar
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar("智能规划成功！")
+                                        }
+                                    } else {
+                                        println("❌ 智能规划失败: $message")
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(message ?: "规划失败")
+                                        }
+                                    }
+                                }
+                            )
+                        }) {
+                            Text("自动规划")
+                        }
+
                     }
 
                     Divider(color = Color(0xFFBDBDBD), thickness = 1.dp)

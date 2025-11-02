@@ -108,3 +108,18 @@ data class AdHocEventVO(
     val plannedEndTime: Instant,
     val type: String
 )
+
+
+// 智能规划请求体
+data class SmartDailyPlanGenerateRequest(
+    val date: Instant, // ISO 8601，例如 "2025-11-02T00:00:00Z"
+    val strategy: String? = null // 可选：算法策略（如 "priority-first", "balanced" 等）
+)
+// 智能规划返回的事件对象
+data class PlannedEventVO(
+    val eventId: Long?,
+    val title: String,
+    val startTime: Instant,
+    val endTime: Instant,
+    val type: String // "adhoc" 或 "habitual"
+)

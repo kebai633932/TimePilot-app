@@ -2,20 +2,12 @@ package com.example.timepilot_app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.timepilot_app.model.AdHocEventCreateRequest
-import com.example.timepilot_app.model.AdHocEventDeleteRequest
-import com.example.timepilot_app.model.AdHocEventUpdateRequest
-import com.example.timepilot_app.model.EventCreateRequest
-import com.example.timepilot_app.model.EventDeleteRequest
-import com.example.timepilot_app.model.EventItem
-import com.example.timepilot_app.model.EventUpdateRequest
-import com.example.timepilot_app.model.HabitualEventCreateRequest
-import com.example.timepilot_app.model.HabitualEventDeleteRequest
-import com.example.timepilot_app.model.HabitualEventUpdateRequest
+import com.example.timepilot_app.model.*
 import com.example.timepilot_app.network.ApiClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 class ScheduleViewModel : ViewModel() {
 
@@ -217,7 +209,45 @@ class ScheduleViewModel : ViewModel() {
             }
         }
     }
+    // ========================================================
+    // 智能规划：生成当日时间安排
+    // ========================================================
+    fun generateSmartDailyPlan(
+        date: Instant,
+        strategy: String? = null,
+        onComplete: (Boolean, String?, List<PlannedEventVO>?) -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val request = SmartDailyPlanGenerateRequest(date, strategy)
+                val response = ApiClient.apiService.generateSmartDailyPlan(request)
 
+                if (response.code == 200 && response.data != null) {
+                    // 返回规划结果
+                    onComplete(true, null, response.data)
+                } else {
+                    onComplete(false, response.message ?: "生成失败", null)
+                }
+            } catch (e: Exception) {
+                onComplete(false, e.message ?: "网络异常", null)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    fun updateEvents(plannedEvents: List<PlannedEventVO>) {
+        _events.value = plannedEvents.map {
+            EventItem(
+                eventId = it.eventId,
+                title = it.title,
+                startTime = it.startTime,
+                endTime = it.endTime,
+                quadrant = 4, // 如果后端没有返回象限，你可以自己补充
+                type = it.type
+            )
+        }
+    }
     // ========================================================
     // 弹窗控制
     // ========================================================
