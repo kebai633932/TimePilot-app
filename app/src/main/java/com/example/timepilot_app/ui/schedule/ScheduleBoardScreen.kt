@@ -190,7 +190,7 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                                 }
                             )
                         }) {
-                            Text("自动规划")
+                            Text("规划")
                         }
                     }
 

@@ -118,20 +118,6 @@ data class AdHocEventVO(
     val plannedEndTime: Instant
 )
 
-// 智能规划请求体
-data class SmartDailyPlanGenerateRequest(
-    val date: Instant  // ✅ 移除strategy字段以匹配Java DTO
-)
-
-// 智能规划返回的事件对象
-data class PlannedEventVO(
-    val eventId: Long?,
-    val title: String,
-    val startTime: Instant,
-    val endTime: Instant,
-    val type: String // "adhoc" 或 "habitual"
-)
-
 // AdHoc事件创建请求（带验证注解）
 data class ValidatedAdHocEventCreateRequest(
     val title: String,
@@ -151,6 +137,20 @@ data class ValidatedHabitualEventCreateRequest(
 ) : EventCreateRequest {
     override val type: String = "habitual"
 }
+
+// 智能规划请求体
+data class SmartDailyPlanGenerateRequest(
+    val date: Instant
+)
+
+// 智能规划返回的事件对象
+data class PlannedEventVO(
+    val eventId: Long?,
+    val title: String,
+    val startTime: Instant,
+    val endTime: Instant,
+    val type: String
+)
 
 // 智能规划请求（带验证注解）
 data class ValidatedSmartDailyPlanGenerateRequest(
