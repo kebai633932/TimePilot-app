@@ -172,6 +172,7 @@ class ScheduleViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 onComplete(false, e.message ?: "网络异常")
+                println(e.message)
             }
         }
     }

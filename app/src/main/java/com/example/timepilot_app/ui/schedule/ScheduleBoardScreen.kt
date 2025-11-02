@@ -224,31 +224,52 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                                 when (currentView) {
                                     "today" -> ScrollableEventSchedule(
                                         events = events.map { it.toScheduleEvent() },
-                                        onEditEvent = { scheduleEvent ->
-                                            val eventItem = events.find { it.toScheduleEvent() == scheduleEvent }
+                                        onEditEvent = { updatedScheduleEvent ->
+                                            val eventItem = events.find {
+                                                it.toScheduleEvent().title == updatedScheduleEvent.title // 或其他唯一标识
+                                            }
                                             eventItem?.let { item ->
+                                                // 将编辑后的时间转换为 Instant
+                                                val today = java.time.LocalDate.now()
+                                                val newStartTime = today
+                                                    .atTime(updatedScheduleEvent.startHour, updatedScheduleEvent.startMinute)
+                                                    .atZone(java.time.ZoneId.systemDefault())
+                                                    .toInstant()
+                                                val newEndTime = today
+                                                    .atTime(updatedScheduleEvent.endHour, updatedScheduleEvent.endMinute)
+                                                    .atZone(java.time.ZoneId.systemDefault())
+                                                    .toInstant()
+
                                                 val updateRequest = when (item.type) {
                                                     "adHoc" -> AdHocEventUpdateRequest(
                                                         eventId = item.eventId!!,
-                                                        title = scheduleEvent.title,
-                                                        quadrant = scheduleEvent.quadrant,
-                                                        plannedStartTime = item.startTime,
-                                                        plannedEndTime = item.endTime
+                                                        title = updatedScheduleEvent.title,
+                                                        quadrant = updatedScheduleEvent.quadrant,
+                                                        plannedStartTime = newStartTime,  // 使用编辑后的新时间
+                                                        plannedEndTime = newEndTime       // 使用编辑后的新时间
                                                     )
                                                     "habitual" -> HabitualEventUpdateRequest(
                                                         eventId = item.eventId!!,
-                                                        title = scheduleEvent.title,
-                                                        quadrant = scheduleEvent.quadrant,
-                                                        startTime = item.startTime,
-                                                        endTime = item.endTime
+                                                        title = updatedScheduleEvent.title,
+                                                        quadrant = updatedScheduleEvent.quadrant,
+                                                        startTime = newStartTime,         // 使用编辑后的新时间
+                                                        endTime = newEndTime              // 使用编辑后的新时间
                                                     )
                                                     else -> null
                                                 }
 
                                                 updateRequest?.let { req ->
                                                     viewModel.editEvent(req) { success, message ->
-                                                        if (!success) {
-                                                            println("编辑失败: $message")
+                                                        if (success) {
+                                                            println("✅ 事件编辑成功")
+                                                            // 可以在这里刷新事件列表
+                                                            viewModel.loadEvents()
+                                                        } else {
+                                                            println("❌ 编辑失败: $message")
+                                                            // 显示错误提示
+                                                            coroutineScope.launch {
+                                                                snackbarHostState.showSnackbar("编辑失败: $message")
+                                                            }
                                                         }
                                                     }
                                                 }
