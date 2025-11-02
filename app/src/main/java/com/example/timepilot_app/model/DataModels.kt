@@ -12,7 +12,6 @@ data class LoginResponse(
     val message: String
 )
 
-data class EmailCodeRequest(val email: String)
 data class EmailCodeResponse(
     val code: String,
     val info: String,

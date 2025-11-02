@@ -26,9 +26,6 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    var selectedEvent by remember { mutableStateOf<EventItem?>(null) }
-    var showOptionsDialog by remember { mutableStateOf(false) }
-
     // Snackbar host 用于显示错误提示
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -69,7 +66,6 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                                 .atTime(scheduleEvent.startHour, scheduleEvent.startMinute)
                                 .atZone(java.time.ZoneId.systemDefault())
                                 .toInstant()
-
                             val plannedEndTime = today
                                 .atTime(scheduleEvent.endHour, scheduleEvent.endMinute)
                                 .atZone(java.time.ZoneId.systemDefault())
@@ -170,8 +166,8 @@ fun ScheduleBoardScreen(viewModel: ScheduleViewModel = remember { ScheduleViewMo
                                                     eventId = item.eventId!!,
                                                     title = scheduleEvent.title,
                                                     quadrant = scheduleEvent.quadrant,
-                                                    plannedStartTime = item.startTime,
-                                                    plannedEndTime = item.endTime
+                                                    startTime = item.startTime,
+                                                    endTime = item.endTime
                                                 )
                                                 else -> null
                                             }

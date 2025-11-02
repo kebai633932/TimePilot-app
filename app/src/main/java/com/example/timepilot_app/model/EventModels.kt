@@ -8,6 +8,7 @@ data class BaseResponse<T>(
     val message: String,
     val data: T?
 )
+
 // 🗓️ 统一事件抽象（通用视图层或后端聚合返回使用）
 data class EventItem(
     val eventId: Long?,
@@ -17,6 +18,7 @@ data class EventItem(
     val endTime: Instant,   // 结束时间（UTC）
     val type: String        // "habitual" 或 "adHoc"
 )
+
 // 🕒 客户端展示模型 (ScheduleEvent)
 data class ScheduleEvent(
     val title: String,
@@ -27,6 +29,7 @@ data class ScheduleEvent(
     val type: String,    // "daily" or "emergency"
     val quadrant: Int    // 1=重要紧急, 2=重要不紧急, 3=紧急不重要, 4=不重要不紧急
 )
+
 interface EventCreateRequest {
     val type: String
 }
@@ -43,14 +46,16 @@ data class AdHocEventCreateRequest(
 data class HabitualEventCreateRequest(
     val title: String,
     val quadrant: Int,
-    val plannedStartTime: Instant,
-    val plannedEndTime: Instant,
+    val startTime: Instant,  // ✅ 修改为与Java DTO一致的startTime
+    val endTime: Instant,    // ✅ 修改为与Java DTO一致的endTime
 ) : EventCreateRequest {
     override val type: String = "habitual"
 }
+
 interface EventUpdateRequest {
     val type: String
 }
+
 data class AdHocEventUpdateRequest(
     val eventId: Long,
     val title: String,
@@ -60,20 +65,22 @@ data class AdHocEventUpdateRequest(
 ) : EventUpdateRequest {
     override val type: String = "adHoc"
 }
+
 data class HabitualEventUpdateRequest(
     val eventId: Long,
     val title: String,
-    val description: String? = null,
+    val description: String? = null,  // ✅ 添加description字段以匹配Java DTO
     val quadrant: Int,
-    val plannedStartTime: Instant,
-    val plannedEndTime: Instant
+    val startTime: Instant,  // ✅ 修改为与Java DTO一致的startTime
+    val endTime: Instant     // ✅ 修改为与Java DTO一致的endTime
 ) : EventUpdateRequest {
     override val type: String = "habitual"
 }
+
 // 统一删除请求接口
 interface EventDeleteRequest {
     val type: String
-    val eventId: Long   // ← 提升到接口
+    val eventId: Long
 }
 
 // 日常事件删除请求
@@ -94,8 +101,8 @@ data class HabitualEventVO(
     val eventId: Long,
     val title: String,
     val quadrant: Int,
-    val plannedStartTime: Instant,
-    val plannedEndTime: Instant,
+    val startTime: Instant,  // ✅ 修改为与Java DTO一致的startTime
+    val endTime: Instant,    // ✅ 修改为与Java DTO一致的endTime
     val description: String? = null,
     val type: String
 )
@@ -109,12 +116,11 @@ data class AdHocEventVO(
     val type: String
 )
 
-
 // 智能规划请求体
 data class SmartDailyPlanGenerateRequest(
-    val date: Instant, // ISO 8601，例如 "2025-11-02T00:00:00Z"
-    val strategy: String? = null // 可选：算法策略（如 "priority-first", "balanced" 等）
+    val date: Instant  // ✅ 移除strategy字段以匹配Java DTO
 )
+
 // 智能规划返回的事件对象
 data class PlannedEventVO(
     val eventId: Long?,
@@ -122,4 +128,34 @@ data class PlannedEventVO(
     val startTime: Instant,
     val endTime: Instant,
     val type: String // "adhoc" 或 "habitual"
+)
+
+// AdHoc事件创建请求（带验证注解）
+data class ValidatedAdHocEventCreateRequest(
+    val title: String,
+
+    val quadrant: Int,
+
+    val plannedStartTime: Instant,
+    val plannedEndTime: Instant
+) : EventCreateRequest {
+    override val type: String = "adHoc"
+}
+
+// Habitual事件创建请求（带验证注解）
+data class ValidatedHabitualEventCreateRequest(
+    val title: String,
+
+    val quadrant: Int,
+
+    val startTime: Instant,
+
+    val endTime: Instant
+) : EventCreateRequest {
+    override val type: String = "habitual"
+}
+
+// 智能规划请求（带验证注解）
+data class ValidatedSmartDailyPlanGenerateRequest(
+    val date: Instant
 )

@@ -55,8 +55,8 @@ class ScheduleViewModel : ViewModel() {
                             eventId = vo.eventId,
                             title = vo.title,
                             quadrant = vo.quadrant,
-                            startTime = vo.plannedStartTime,
-                            endTime = vo.plannedEndTime,
+                            startTime = vo.startTime,
+                            endTime = vo.endTime,
                             type = vo.type
                         )
                     } ?: emptyList()
@@ -109,8 +109,8 @@ class ScheduleViewModel : ViewModel() {
                                 eventId = newId,
                                 title = req.title,
                                 quadrant = req.quadrant,
-                                startTime = req.plannedStartTime,
-                                endTime = req.plannedEndTime,
+                                startTime = req.startTime,
+                                endTime = req.endTime,
                                 type = "habitual"
                             )
                             onComplete(true, null)
@@ -160,8 +160,8 @@ class ScheduleViewModel : ViewModel() {
                                     it.copy(
                                         title = req.title,
                                         quadrant = req.quadrant,
-                                        startTime = req.plannedStartTime,
-                                        endTime = req.plannedEndTime
+                                        startTime = req.startTime,
+                                        endTime = req.endTime
                                     )
                                 } else it
                             }
@@ -220,7 +220,7 @@ class ScheduleViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val request = SmartDailyPlanGenerateRequest(date, strategy)
+                val request = SmartDailyPlanGenerateRequest(date)
                 val response = ApiClient.apiService.generateSmartDailyPlan(request)
 
                 if (response.code == 200 && response.data != null) {
