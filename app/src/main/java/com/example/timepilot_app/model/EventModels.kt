@@ -1,13 +1,18 @@
 package com.example.timepilot_app.model
 
+import com.google.gson.annotations.SerializedName
 import java.time.Instant
 
-// 🧩 通用封装
+// 🧩 通用封装 - 修复字段名匹配问题
 data class BaseResponse<T>(
-    val code: Int,
-    val message: String,
-    val data: T?
-)
+    @SerializedName("code") val code: String,  // ✅ 改为 String 并添加序列化名称
+    @SerializedName("info") val message: String,  // ✅ 使用 @SerializedName 匹配 "info" 字段
+    @SerializedName("data") val data: T?
+) {
+    // ✅ 添加便利方法检查是否成功
+    val isSuccess: Boolean
+        get() = code == "200"
+}
 
 // 🗓️ 统一事件抽象（通用视图层或后端聚合返回使用）
 data class EventItem(
@@ -102,9 +107,7 @@ data class HabitualEventVO(
     val title: String,
     val quadrant: Int,
     val startTime: Instant,  // ✅ 修改为与Java DTO一致的startTime
-    val endTime: Instant,    // ✅ 修改为与Java DTO一致的endTime
-    val description: String? = null,
-    val type: String
+    val endTime: Instant    // ✅ 修改为与Java DTO一致的endTime
 )
 
 data class AdHocEventVO(
@@ -112,8 +115,7 @@ data class AdHocEventVO(
     val title: String,
     val quadrant: Int,
     val plannedStartTime: Instant,
-    val plannedEndTime: Instant,
-    val type: String
+    val plannedEndTime: Instant
 )
 
 // 智能规划请求体
@@ -133,9 +135,7 @@ data class PlannedEventVO(
 // AdHoc事件创建请求（带验证注解）
 data class ValidatedAdHocEventCreateRequest(
     val title: String,
-
     val quadrant: Int,
-
     val plannedStartTime: Instant,
     val plannedEndTime: Instant
 ) : EventCreateRequest {
@@ -145,11 +145,8 @@ data class ValidatedAdHocEventCreateRequest(
 // Habitual事件创建请求（带验证注解）
 data class ValidatedHabitualEventCreateRequest(
     val title: String,
-
     val quadrant: Int,
-
     val startTime: Instant,
-
     val endTime: Instant
 ) : EventCreateRequest {
     override val type: String = "habitual"

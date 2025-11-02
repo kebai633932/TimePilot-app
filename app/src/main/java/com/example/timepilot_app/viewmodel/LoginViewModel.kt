@@ -6,27 +6,33 @@ import androidx.lifecycle.viewModelScope
 import com.example.timepilot_app.model.LoginRequest
 import com.example.timepilot_app.model.LoginResponse
 import com.example.timepilot_app.network.ApiClient
+import com.example.timepilot_app.util.TokenStorage
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
-
-    var loginResponse: LoginResponse? = null
-    var loginError: String? = null
-
-    // 登录逻辑
     fun login(username: String, password: String, onResult: (Boolean, String) -> Unit) {
-        viewModelScope.launch { // viewModelScope 是协程作用域
+        viewModelScope.launch {
             try {
-                val response = ApiClient.apiService.login(LoginRequest(username, password))
-                Log.e("Network", response.message)
-                if (response.code == 200) {
-                    onResult(true, response.message) // ✅ 登录成功
+                println("🔄 开始登录请求...")
+                var loginResponse = ApiClient.apiService.login(LoginRequest(username, password)) // ✅ 修复：使用 val
+
+                println("📡 登录响应: code=${loginResponse.code}, message=${loginResponse.message}")
+
+                if (loginResponse.code == 200) {
+                    TokenStorage.saveTokens(loginResponse.access_token, loginResponse.refresh_token)
+                    println("✅ Token 保存成功")
+
+                    // ✅ 立即验证 token 是否保存成功
+                    TokenStorage.debugTokenStatus()
+
+                    onResult(true, loginResponse.message)
                 } else {
-                    onResult(false, response.message) // ❌ 登录失败（后端返回错误）
+                    onResult(false, loginResponse.message)
                 }
             } catch (e: Exception) {
-                onResult(false, e.message ?: "网络异常，请检查连接")
-                println(e.message ?: "网络异常，请检查连接")
+                val errorMsg = e.message ?: "网络异常，请检查连接"
+                println("❌ 登录异常: $errorMsg")
+                onResult(false, errorMsg)
             }
         }
     }

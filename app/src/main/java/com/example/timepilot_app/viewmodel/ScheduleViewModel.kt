@@ -38,7 +38,7 @@ class ScheduleViewModel : ViewModel() {
                 val adHocResponse = ApiClient.apiService.listAdHocEvents()
                 val habitualResponse = ApiClient.apiService.listHabitualEvents()
 
-                if (adHocResponse.code == 200 && habitualResponse.code == 200) {
+                if (adHocResponse.code == "200" && habitualResponse.code == "200") {
                     val adHocEvents = adHocResponse.data?.map { vo ->
                         EventItem(
                             eventId = vo.eventId,
@@ -46,7 +46,7 @@ class ScheduleViewModel : ViewModel() {
                             quadrant = vo.quadrant,
                             startTime = vo.plannedStartTime,
                             endTime = vo.plannedEndTime,
-                            type = vo.type
+                            type = "adHoc"
                         )
                     } ?: emptyList()
 
@@ -57,7 +57,7 @@ class ScheduleViewModel : ViewModel() {
                             quadrant = vo.quadrant,
                             startTime = vo.startTime,
                             endTime = vo.endTime,
-                            type = vo.type
+                            type = "habitual"
                         )
                     } ?: emptyList()
 
@@ -68,6 +68,7 @@ class ScheduleViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "网络异常: ${e.message}"
+                println("网络异常:"+e.message)
             }
             _isLoading.value = false
         }
@@ -86,7 +87,7 @@ class ScheduleViewModel : ViewModel() {
                     "adHoc" -> {
                         val req = request as AdHocEventCreateRequest
                         val response = ApiClient.apiService.createAdHocEvent(req)
-                        if (response.code == 200) {
+                        if (response.code == "200") {
                             val newId = response.data!!
                             _events.value += EventItem(
                                 eventId = newId,
@@ -103,7 +104,7 @@ class ScheduleViewModel : ViewModel() {
                     "habitual" -> {
                         val req = request as HabitualEventCreateRequest
                         val response = ApiClient.apiService.createHabitualEvent(req)
-                        if (response.code == 200) {
+                        if (response.code == "200") {
                             val newId = response.data!!
                             _events.value += EventItem(
                                 eventId = newId,
@@ -136,7 +137,7 @@ class ScheduleViewModel : ViewModel() {
                     "adHoc" -> {
                         val req = request as AdHocEventUpdateRequest
                         val response = ApiClient.apiService.updateAdHocEvent(req)
-                        if (response.code == 200) {
+                        if (response.code == "200") {
                             _events.value = _events.value.map {
                                 if (it.eventId == req.eventId && it.type == "adHoc") {
                                     it.copy(
@@ -154,7 +155,7 @@ class ScheduleViewModel : ViewModel() {
                     "habitual" -> {
                         val req = request as HabitualEventUpdateRequest
                         val response = ApiClient.apiService.updateHabitualEvent(req)
-                        if (response.code == 200) {
+                        if (response.code == "200") {
                             _events.value = _events.value.map {
                                 if (it.eventId == req.eventId && it.type == "habitual") {
                                     it.copy(
@@ -195,7 +196,7 @@ class ScheduleViewModel : ViewModel() {
                     return@launch
                 }
 
-                if (response.code == 200 && response.data == true) {
+                if (response.code == "200" && response.data == true) {
                     // 删除本地缓存的事件
                     _events.value = _events.value.filterNot {
                         it.eventId == request.eventId && it.type == request.type
@@ -223,7 +224,7 @@ class ScheduleViewModel : ViewModel() {
                 val request = SmartDailyPlanGenerateRequest(date)
                 val response = ApiClient.apiService.generateSmartDailyPlan(request)
 
-                if (response.code == 200 && response.data != null) {
+                if (response.code == "200" && response.data != null) {
                     // 返回规划结果
                     onComplete(true, null, response.data)
                 } else {
