@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    private const val BASE_URL = "http://117.72.94.236:8090"
+    private const val BASE_URL = "http://10.0.2.2:8090"
 
     // Application 初始化时注入上下文
     private lateinit var appContext: Context
