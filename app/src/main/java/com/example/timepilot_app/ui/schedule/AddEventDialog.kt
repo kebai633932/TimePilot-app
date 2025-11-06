@@ -187,12 +187,15 @@ fun ExposedDropdown(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
-            LazyColumn(modifier = Modifier.heightIn(max = 280.dp)) {
-                items(options.size) { i ->
+            // 使用 Column 替代 LazyColumn
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                options.forEachIndexed { index, option ->
                     DropdownMenuItem(
-                        text = { Text(options[i]) },
+                        text = { Text(option) },
                         onClick = {
-                            onSelectIndex(i)
+                            onSelectIndex(index)
                             onExpandedChange(false)
                         }
                     )
